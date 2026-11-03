@@ -1006,14 +1006,14 @@ if (cartOverlay) {
 function checkoutViaWhatsApp() {
 
   if (!cart.length) {
-
     showToast("YOUR BAG IS EMPTY.");
-
     return;
   }
 
-
   const subtotal = getCartSubtotal();
+
+  // Free delivery applies strictly above P500.
+  const qualifiesForFreeDelivery = subtotal > 500;
 
   let message = "";
 
@@ -1023,51 +1023,43 @@ function checkoutViaWhatsApp() {
   message += "Hello PLATINUMPESOS,\n";
   message += "I would like to place the following order:\n\n";
 
-
   cart.forEach(function (item, index) {
 
     const product = getProduct(item.productId);
 
-    if (!product) return;
+    if (!product || product.price === null) return;
 
     const lineTotal = product.price * item.quantity;
 
     message += (index + 1) + ". " + product.name + "\n";
-
     message += "Size: " + item.size + "\n";
-
     message += "Colour: " + item.colour + "\n";
-
     message += "Quantity: " + item.quantity + "\n";
-
     message += "Unit price: " + formatMoney(product.price) + "\n";
-
     message += "Subtotal: " + formatMoney(lineTotal) + "\n\n";
 
   });
 
-
   message += "==============================\n";
+  message += "ORDER SUBTOTAL: " + formatMoney(subtotal) + "\n";
 
-  message += "ORDER SUBTOTAL: " + formatMoney(subtotal) + "\n\n";
+  if (qualifiesForFreeDelivery) {
+    message += "DELIVERY: FREE\n";
+    message += "FREE DELIVERY OFFER APPLIED.\n\n";
+  } else {
+    message += "DELIVERY: FEE APPLIES\n";
+    message += "Delivery fee to be confirmed.\n\n";
+  }
 
   message += "CUSTOMER DETAILS\n";
-
   message += "Name: \n";
-
   message += "Contact number: \n";
-
   message += "Location: \n";
-
   message += "Delivery or collection: \n\n";
 
-  message += "Please confirm product availability, delivery fee, ";
-  message += "payment details and collection arrangements.\n\n";
-
+  message += "Please confirm product availability and payment details.\n\n";
   message += "Complimentary stickers appreciated.\n";
-
   message += "Thank you — PLATINUMPESOS®.";
-
 
   const whatsappURL =
     "https://wa.me/" +
@@ -1075,80 +1067,9 @@ function checkoutViaWhatsApp() {
     "?text=" +
     encodeURIComponent(message);
 
-
   window.open(whatsappURL, "_blank", "noopener");
-
 }
-
 
 if (checkoutButton) {
   checkoutButton.addEventListener("click", checkoutViaWhatsApp);
 }
-
-
-/* =====================================================
-   16. MOBILE NAVIGATION
-===================================================== */
-
-if (menuToggle && mainNav) {
-
-  menuToggle.addEventListener("click", function () {
-
-    mainNav.classList.toggle("open");
-
-  });
-
-
-  mainNav.querySelectorAll("a").forEach(function (link) {
-
-    link.addEventListener("click", function () {
-
-      mainNav.classList.remove("open");
-
-    });
-
-  });
-
-}
-
-
-/* =====================================================
-   17. KEYBOARD CONTROLS
-===================================================== */
-
-document.addEventListener("keydown", function (event) {
-
-  if (event.key === "Escape") {
-
-    if (productModal.classList.contains("active")) {
-
-      closeProductModal();
-
-    }
-
-    if (cartDrawer.classList.contains("active")) {
-
-      closeShoppingBag();
-
-    }
-
-    if (mainNav) {
-
-      mainNav.classList.remove("open");
-
-    }
-
-  }
-
-});
-
-
-/* =====================================================
-   18. INITIALISE WEBSITE
-===================================================== */
-
-renderProducts();
-
-renderCart();
-
-console.log("PLATINUMPESOS® website initialised.");
